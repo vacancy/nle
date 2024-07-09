@@ -92,6 +92,7 @@ static char *viz_clear_rows[ROWNO];
 
 static char left_ptrs[ROWNO][COLNO]; /* LOS algorithm helpers */
 static char right_ptrs[ROWNO][COLNO];
+static boolean vision_is_oracle = FALSE;
 
 /* Forward declarations. */
 STATIC_DCL void FDECL(fill_point, (int, int));
@@ -137,6 +138,13 @@ vision_init()
 
     /* Initialize the vision algorithm (currently C or D). */
     view_init();
+
+    /* Jiayaun:: read the environment variable */
+    char *env = getenv("NH_ORACLE_VISION");
+    // If env == "1"
+    if (env && strcmp(env, "1") == 0) {
+        vision_is_oracle = TRUE;
+    }
 
 #ifdef VISION_TABLES
     /* Note:  this initializer doesn't do anything except guarantee that
@@ -690,6 +698,33 @@ int control;
 
     /* Set the correct bits for all light sources. */
     do_light_sources(next_array);
+
+    /* Jiayuan: set the entire next_array to be COULD_SEE */
+    if (vision_is_oracle) {
+        // see_monsters(), see_objects(), see_traps();
+        for (row = 0; row < ROWNO; row++) {
+            for (col = 0; col < COLNO; col++) {
+                next_array[row][col] |= IN_SIGHT;
+                next_array[row][col] |= COULD_SEE;
+                next_array[row][col] |= TEMP_LIT;
+                feel_location(col, row);
+                // levl[col][row].glyph = cmap_to_glyph(levl[col][row].typ);
+                // levl[col][row].glyph = back_to_glyph(col, row);
+                // map_location(col, row, 1);
+                // newsym(col, row);
+            }
+        }
+    }
+
+    // /* Print the next_array */
+    // for (row = 0; row < ROWNO; row++) {
+    //     for (col = 0; col < COLNO; col++) {
+    //         fprintf(stderr, "%c", next_array[row][col] & IN_SIGHT || next_array[row][col] & COULD_SEE ? 'X' : '.');
+    //     }
+    //     fprintf(stderr, "\n");
+    // }
+
+    // fprintf(stderr, "vision_recalc: next_array %d %d\n", ROWNO, COLNO);
 
     /*
      * Make the viz_array the new array so that cansee() will work correctly.
