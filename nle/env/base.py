@@ -356,7 +356,9 @@ class NLE(gym.Env):
         # Careful: By default we re-use Numpy arrays, so copy before!
         last_observation = tuple(a.copy() for a in self.last_observation)
 
-        observation, done = self.nethack.step(self.actions[action])
+        if type(action) is int:
+            action = self.actions[action]
+        observation, done = self.nethack.step(action)
         is_game_over = observation[self._program_state_index][0] == 1
         if is_game_over or not self._allow_all_modes:
             observation, done = self._perform_known_steps(

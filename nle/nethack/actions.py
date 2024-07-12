@@ -245,6 +245,7 @@ NON_RL_ACTIONS = (
 )
 
 _USEFUL_ACTIONS = list(ACTIONS)
+NON_RL_ACTIONS = tuple()
 for action in NON_RL_ACTIONS + tuple(TextCharacters):
     _USEFUL_ACTIONS.remove(action)
 _USEFUL_ACTIONS.append(TextCharacters.SPACE)
